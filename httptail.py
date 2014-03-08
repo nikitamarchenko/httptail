@@ -37,7 +37,6 @@ class MainHandler(tornado.web.RequestHandler):
         self._connection_alive = False
 
     def _read_file(self):
-        print '_read_file'
         line = self._tail.next()
         if line:
             self.write(line)
@@ -46,7 +45,6 @@ class MainHandler(tornado.web.RequestHandler):
             tornado.ioloop.IOLoop.instance().add_timeout(time.time() + 1, self._read_file)
         else:
             self._file.close()
-            print 'file close'
 
 
 application = tornado.web.Application([
