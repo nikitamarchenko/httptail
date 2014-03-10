@@ -6,6 +6,7 @@ import logging
 
 import tornado.ioloop
 import tornado.web
+import tornado.log
 from tornado.options import define, options
 
 
@@ -15,6 +16,8 @@ define("bind_address", default="0.0.0.0", help="Bind Address")
 define("port", default=8888, help="Port")
 define("config_file", help="Configuration File")
 define("root_dir", default=None, help="File root directory")
+define("syslog_adress", default='/dev/log', help="Syslog socket address")
+define("syslog", default=False, help="Enable syslog logging")
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -84,6 +87,13 @@ class MainHandler(tornado.web.RequestHandler):
 
 application = tornado.web.Application([(r"/(.*)", MainHandler)])
 
+
+def configure_syslog():
+    syslog_format = 'httptail : [%(levelname)1.1s %(asctime)s %(module)s:%(lineno)d] %(message)s'
+    syslog_handler = logging.handlers.SysLogHandler(options.syslog_adress)
+    syslog_handler.setFormatter(tornado.log.LogFormatter(fmt=syslog_format))
+    LOG.addHandler(syslog_handler)
+
 if __name__ == "__main__":
     tornado.options.parse_command_line()
 
@@ -91,7 +101,11 @@ if __name__ == "__main__":
         tornado.options.parse_config_file(options.config_file)
         tornado.options.parse_command_line()
 
+    if options.syslog and options.syslog_adress:
+        configure_syslog()
+
     if options.root_dir:
+        LOG.error("test")
         application.listen(options.port, options.bind_address)
         tornado.ioloop.IOLoop.instance().start()
     else:
