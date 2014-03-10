@@ -68,10 +68,14 @@ class MainHandler(tornado.web.RequestHandler):
         self._connection_alive = False
 
     def _read_file(self):
-        line = self._tail.next()
-        if line:
-            self.write(line)
-            self.flush()
+        while True:
+            line = self._tail.next()
+            if line:
+                self.write(line)
+                self.flush()
+            else:
+                break
+
         if self._connection_alive:
             tornado.ioloop.IOLoop.instance().add_timeout(time.time() + 1, self._read_file)
         else:
