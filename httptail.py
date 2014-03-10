@@ -105,7 +105,6 @@ if __name__ == "__main__":
         configure_syslog()
 
     if options.root_dir:
-        LOG.error("test")
         application.listen(options.port, options.bind_address)
         tornado.ioloop.IOLoop.instance().start()
     else:
